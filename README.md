@@ -4,8 +4,8 @@
 
 ## Dependencies
 
-..* c++11
-..* std::thread
+* c++11
+* std::thread
 
 ## How do I use it?
 
@@ -14,6 +14,20 @@ The blTimer class can be used with any type of function such as a function, a fu
 Here's an example code where we feed a functor to our timer, and set the timer period to 1 second (that means it fires every second), set its total duration to 20 seconds (it stops firing after 20 seconds)
 
 ```c++
+// Include the thread
+
+#include <thread>
+
+// Include iostream to output to console
+
+#include <iostream>
+
+// Include the blTimerAPI library
+
+#include "blTimerAPI/blTimerAPI.hpp"
+
+
+
 //-------------------------------------------------------------------
 // A simple counting functor
 //-------------------------------------------------------------------

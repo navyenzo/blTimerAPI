@@ -137,7 +137,7 @@ public:  // Public functions
 
 
 
-private:  // Private functions
+protected:  // Protected functions
 
 
 

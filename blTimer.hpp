@@ -26,9 +26,20 @@
 
 
 //-------------------------------------------------------------------
+// NOTE: This class is defined within the blTimerAPI namespace
+//-------------------------------------------------------------------
+namespace blTimerAPI
+{
+//-------------------------------------------------------------------
+
+
+
+//-------------------------------------------------------------------
 class blTimer
 {
-public:
+public: // Constructors and destructor
+
+
 
     // Default constructor
 
@@ -42,11 +53,12 @@ public:
 
 
 
-    // Eliminate copy construction
+    // Eliminate copy construction and
+    // assignment operator
 
     blTimer(blTimer const&) = delete;
 
-    blTimer&                                            operator=(blTimer const&) = delete;
+    blTimer&                                                    operator=(blTimer const&) = delete;
 
 
 
@@ -54,45 +66,74 @@ public:  // Public functions
 
 
 
-    // Function used to specify the timer period
+    // Functions used to set/get the timer
+    // period in seconds
 
-    void                                                setPeriod(const int& periodExpressedInSeconds);
+    void                                                        setPeriod(const double& periodExpressedInSeconds);
+    void                                                        setPeriod(const std::chrono::duration<double>& period);
+    const std::chrono::duration<double>&                        getPeriod()const;
 
 
 
-    // Function used to specify the timer's
+
+    // Functions used to set/get the timer's
     // total duration
 
-    void                                                setDuration(const double& timerDurationInSeconds);
+    void                                                        setDuration(const double& timerDurationInSeconds);
+    void                                                        setDuration(const std::chrono::duration<double>& duration);
+    const std::chrono::duration<double>&                        getDuration()const;
 
 
 
-    // Functions used to stop the timer
+    // Functions used to set/get the maximum
+    // number of times that the timer fires
 
-    void                                                stopAndJoin();
-    void                                                stopAndDetach();
-
-
-
-    // pause function will signal the thread to pause
-    // its execution to later be restarted again
-
-    void                                                pause();
+    void                                                        setMaximumNumberOfTimesTheTimerFires(const int& maximumNumberOfTimesTheTimerFires);
+    const int&                                                  getMaximumNumberOfTimesTheTimerFires()const;
 
 
 
-    // Functions used ot start the parallel thread
+    // Functions used to get the current
+    // time/firings while the thread is
+    // running
+
+    const int&                                                  getCurrentNumberOfTimesTheTimerFired()const;
+    const std::chrono::high_resolution_clock::time_point&       getTimeTheThreadStartedRunning()const;
+
+
+
+    // Functions used to stop the thread and
+    // either join the calling thead or just
+    // be detached
+
+    void                                                        stopAndJoin();
+    void                                                        stopAndDetach();
+    void                                                        join();
+    void                                                        detach();
+
+
+
+    // pause function will signal the
+    // thread to pause its execution to
+    // later be restarted again
+
+    void                                                        pause();
+
+
+
+    // Functions used ot start the
+    // parallel thread
 
     template<typename blFunctor,
              typename...blFunctorArguments>
 
-    bool                                                start(blFunctor functor);
+    bool                                                        start(blFunctor functor);
 
     template<typename blFunctor,
              typename...blFunctorArguments>
 
-    bool                                                start(blFunctor functor,
-                                                              blFunctorArguments... arguments);
+    bool                                                        start(blFunctor functor,
+                                                                      blFunctorArguments... arguments);
 
 
 
@@ -100,7 +141,7 @@ private:  // Private functions
 
 
 
-    // run functions will call the registered
+    // Run function will call the registered
     // callbacks as the thread is being executed
     // this function takes as an argument a functor
     // with functor arguments and will call that
@@ -110,8 +151,8 @@ private:  // Private functions
     template<typename blFunctor,
              typename...blFunctorArguments>
 
-    void                                                run(blFunctor functor,
-                                                            blFunctorArguments... arguments);
+    void                                                        run(blFunctor functor,
+                                                                    blFunctorArguments... arguments);
 
 
 
@@ -122,7 +163,7 @@ private:  // Private variables
     // The atomic variable used to signal
     // the thread to stop its execution
 
-    std::atomic<bool>                                   m_stop;
+    std::atomic<bool>                                           m_stop;
 
 
 
@@ -131,33 +172,47 @@ private:  // Private variables
     // pause variable is true, the thread
     // does not execute its function
 
-    std::atomic<bool>                                   m_pause;
+    std::atomic<bool>                                           m_pause;
+
+
+
+    // The maximum number of times the
+    // timer fires
+
+    int                                                         m_maximumNumberOfTimesTheTimerFires;
+
+
+
+    // The number of times the timer
+    // has fired
+
+    int                                                         m_currentNumberOfTimesTheTimerHasFired;
 
 
 
     // The timer period in seconds
 
-    std::chrono::duration<double>                       m_period;
+    std::chrono::duration<double>                               m_period;
 
 
 
     // The total duration of the timer
     // after which the timer will be stopped
 
-    std::chrono::duration<double>                       m_duration;
+    std::chrono::duration<double>                               m_duration;
 
 
 
     // Time point at which timer was started
 
-    std::chrono::high_resolution_clock::time_point      m_timeStarted;
+    std::chrono::high_resolution_clock::time_point              m_timeTheThreadStartedRunning;
 
 
 
     // The variable used to spawn parallel
     // therads
 
-    std::thread                                         m_thread;
+    std::thread                                                 m_thread;
 
 };
 //-------------------------------------------------------------------
@@ -165,13 +220,25 @@ private:  // Private variables
 
 
 //-------------------------------------------------------------------
-inline blTimer::blTimer() : m_stop(true),m_pause(false),m_period(std::chrono::duration< double,std::ratio<1,1> >(1)),m_duration(std::chrono::duration<double>::zero())
+// Default constructor
+//-------------------------------------------------------------------
+inline blTimer::blTimer()
 {
+    // Default all values
+
+    m_stop = true;
+    m_pause = false;
+    m_maximumNumberOfTimesTheTimerFires = -1;
+    m_currentNumberOfTimesTheTimerHasFired = 0;
+    m_period = std::chrono::duration< double,std::ratio<1,1> >(0);
+    m_duration = std::chrono::duration<double>::zero();
 }
 //-------------------------------------------------------------------
 
 
 
+//-------------------------------------------------------------------
+// Destructor
 //-------------------------------------------------------------------
 inline blTimer::~blTimer()
 {
@@ -182,23 +249,82 @@ inline blTimer::~blTimer()
 
 
 //-------------------------------------------------------------------
-inline void blTimer::setPeriod(const int& periodExpressedInSeconds)
+// Set/get functions
+//-------------------------------------------------------------------
+inline void blTimer::setPeriod(const double& periodExpressedInSeconds)
 {
-    m_period = std::chrono::seconds(periodExpressedInSeconds);
+    m_period = std::chrono::duration< double,std::ratio<1,1> >(periodExpressedInSeconds);
 }
-//-------------------------------------------------------------------
 
 
 
-//-------------------------------------------------------------------
+inline void blTimer::setPeriod(const std::chrono::duration<double>& period)
+{
+    m_period = period;
+}
+
+
+
 inline void blTimer::setDuration(const double& timerDurationInSeconds)
 {
     m_duration = std::chrono::duration< double,std::ratio<1,1> >(timerDurationInSeconds);
 }
+
+
+
+inline void blTimer::setDuration(const std::chrono::duration<double>& duration)
+{
+    m_duration = duration;
+}
+
+
+
+inline void blTimer::setMaximumNumberOfTimesTheTimerFires(const int& maximumNumberOfTimesTheTimerFires)
+{
+    m_maximumNumberOfTimesTheTimerFires = maximumNumberOfTimesTheTimerFires;
+}
+
+
+
+inline const std::chrono::duration<double>& blTimer::getPeriod()const
+{
+    return m_period;
+}
+
+
+
+inline const std::chrono::duration<double>& blTimer::getDuration()const
+{
+    return m_duration;
+}
+
+
+
+inline const int& blTimer::getMaximumNumberOfTimesTheTimerFires()const
+{
+    return m_maximumNumberOfTimesTheTimerFires;
+}
+
+
+
+inline const int& blTimer::getCurrentNumberOfTimesTheTimerFired()const
+{
+    return m_currentNumberOfTimesTheTimerHasFired;
+}
+
+
+
+inline const std::chrono::high_resolution_clock::time_point& blTimer::getTimeTheThreadStartedRunning()const
+{
+    return m_timeTheThreadStartedRunning;
+}
 //-------------------------------------------------------------------
 
 
 
+//-------------------------------------------------------------------
+// Functions used to stop the thread and either join the
+// calling thead or just be detached
 //-------------------------------------------------------------------
 inline void blTimer::stopAndJoin()
 {
@@ -207,16 +333,30 @@ inline void blTimer::stopAndJoin()
     if(m_thread.joinable() == true)
         m_thread.join();
 }
-//-------------------------------------------------------------------
 
 
 
-//-------------------------------------------------------------------
 inline void blTimer::stopAndDetach()
 {
     m_stop = true;
 
     if(m_thread.joinable() == true)
+        m_thread.detach();
+}
+
+
+
+inline void blTimer::join()
+{
+    if(m_thread.joinable())
+        m_thread.join();
+}
+
+
+
+inline void blTimer::detach()
+{
+    if(m_thread.joinable())
         m_thread.detach();
 }
 //-------------------------------------------------------------------
@@ -316,18 +456,27 @@ inline void blTimer::run(blFunctor functor,blFunctorArguments... arguments)
     // intervals and we can keep track
     // of when the timer was started
 
-    m_timeStarted = std::chrono::high_resolution_clock::now();
+    m_timeTheThreadStartedRunning = std::chrono::high_resolution_clock::now();
 
-    auto lastTimeOfExecution = m_timeStarted;
-    auto currentTime = m_timeStarted;
+    auto lastTimeOfExecution = m_timeTheThreadStartedRunning;
+    auto currentTime = m_timeTheThreadStartedRunning;
+
+
+
+    // We also zero out the number of
+    // times the timer has fired so far
+
+    m_currentNumberOfTimesTheTimerHasFired = 0;
 
 
 
     // We then enter a loop that will keep
     // going until the user calls the stop
-    // function
+    // function or until the timer has fired
+    // the maximum number of allowed times
 
-    while(m_stop == false)
+    while(m_stop == false &&
+          (m_currentNumberOfTimesTheTimerHasFired < m_maximumNumberOfTimesTheTimerFires || m_maximumNumberOfTimesTheTimerFires < 0))
     {
         // Get the current time
 
@@ -359,7 +508,7 @@ inline void blTimer::run(blFunctor functor,blFunctorArguments... arguments)
             // than zero, otherwise we keep going
             // until the user stops the timer
 
-            if( ((currentTime - m_timeStarted) > m_duration) && m_duration > std::chrono::duration<double>::zero() )
+            if( ((currentTime - m_timeTheThreadStartedRunning) > m_duration) && m_duration > std::chrono::duration<double>::zero() )
             {
                 // In this case the timer has passed
                 // the specified duration and the specified
@@ -367,8 +516,22 @@ inline void blTimer::run(blFunctor functor,blFunctorArguments... arguments)
 
                 m_stop = true;
             }
+
+
+
+            // Let's increase the number of times the
+            // timer has fired so far
+
+            ++m_currentNumberOfTimesTheTimerHasFired;
         }
     }
+}
+//-------------------------------------------------------------------
+
+
+
+//-------------------------------------------------------------------
+// End of namespace
 }
 //-------------------------------------------------------------------
 

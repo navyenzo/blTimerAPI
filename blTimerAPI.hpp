@@ -25,14 +25,13 @@
 
 
 //-------------------------------------------------------------------
-namespace blTimerAPI
-{
-    // A timer that runs on a parallel thread and invokes
-    // multiple user provided callbacks every user's specified
-    // period seconds
 
-    #include "blTimer.hpp"
-}
+// A timer that runs on a parallel thread and invokes
+// multiple user provided callbacks every user's specified
+// "period" seconds
+
+#include "blTimer.hpp"
+
 //-------------------------------------------------------------------
 
 

@@ -113,9 +113,9 @@ int main(int argc, char *argv[])
 //-------------------------------------------------------------------
 ```
 
-```c++
 The output from this program follows:
 
+```c++
 value = 1
 value = 2
 value = 3

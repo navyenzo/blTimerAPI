@@ -13,7 +13,7 @@ The blTimer class can be used with any type of function such as a function, a fu
 
 The blTimerAPI also includes a blMemberFunctionWrapper object used to wrap member functions to use with the timer
 
-Here's an example code where we feed a functor to our timer, and set the timer period to 1 second (that means it fires every second), set its total duration to 20 seconds (it stops firing after 20 seconds)
+Here's an example code where we feed a functor to our timer, and set the timer period to 1 second (that means it fires every second), set its total duration to 5 seconds (it stops firing after 5 seconds) and set its maximum number of firings to -1 (it means it never stops firing until it runs for "duration" seconds)
 
 ```c++
 // Include the thread

@@ -113,6 +113,7 @@ int main(int argc, char *argv[])
 //-------------------------------------------------------------------
 ```
 
+```c++
 The output from this program follows:
 
 value = 1
@@ -121,3 +122,4 @@ value = 3
 value = 4
 value = 5
 after thread is done, value = 5
+```

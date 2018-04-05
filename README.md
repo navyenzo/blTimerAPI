@@ -30,10 +30,6 @@ Here's an example code where we feed a functor to our timer, and set the timer p
 
 
 
-
-
-
-
 //-------------------------------------------------------------------
 // A simple worker class
 //-------------------------------------------------------------------
@@ -107,12 +103,12 @@ int main(int argc, char *argv[])
     // indeed changed
 
     std::cout << "after thread is done, value = " << myValue << "\n\n\n";
-	
-	
-	
-	// We're done
-	
-	return 0;
+    
+    
+    
+    // We're done
+    
+    return 0;
 }
 //-------------------------------------------------------------------
 ```

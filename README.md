@@ -11,6 +11,8 @@
 
 The blTimer class can be used with any type of function such as a function, a functor, a lambda function, with any number of arguments
 
+The blTimerAPI also includes a blMemberFunctionWrapper object used to wrap member functions to use with the timer
+
 Here's an example code where we feed a functor to our timer, and set the timer period to 1 second (that means it fires every second), set its total duration to 20 seconds (it stops firing after 20 seconds)
 
 ```c++
@@ -28,19 +30,22 @@ Here's an example code where we feed a functor to our timer, and set the timer p
 
 
 
+
+
+
+
 //-------------------------------------------------------------------
-// A simple counting functor
+// A simple worker class
 //-------------------------------------------------------------------
-class counter
+class WorkerClass
 {
 public:
+    WorkerClass(){}
+    ~WorkerClass(){}
 
-    counter(){}
-    ~counter(){}
-
-    void operator()(int& count)
+    void workFunction(int& value)
     {
-        std::cout << "count = " << ++count << std::endl;
+        std::cout << "value = " << ++value << std::endl;
     }
 };
 //-------------------------------------------------------------------
@@ -48,33 +53,62 @@ public:
 
 
 //-------------------------------------------------------------------
+// main program function
+//-------------------------------------------------------------------
 int main(int argc, char *argv[])
 {
-    // Create an instance of the counter
-	
-	counter myCounter;
-	
-	// The count
-	
-	int count = 10;
-	
-	// Create the timer
-	
-	blTimerAPI::blTimer myTimer;
-	
-	// Set the timer duration to 20 seconds total (stop after 20 seconds)
-	
-    myTimer.setDuration(20);
-	
-	// Set the period to 1 second (fire every 1 second)
+    // Create the worker class
 
-    myTimer.start(std::ref(myCounter),std::ref(count));
+    WorkerClass myWorker;
+
+
+
+    // Create the timer and set its
+    // properties
+
+    blTimerAPI::blTimer myTimer;
+
+    myTimer.setDuration(5); // In seconds
+    myTimer.setPeriod(1); // In seconds
+    myTimer.setMaximumNumberOfTimesTheTimerFires(-1); // Negative means no max limit is set
+
+
+
+    // The value variable
+
+    int myValue = 0;
+
+
+
+    // The member function wrapper
+
+    auto functionWrapper = blTimerAPI::blMemberFunctionWrapper(myWorker,&WorkerClass::workFunction);
+
+
+
+    // Start the timer
+
+    myTimer.start(functionWrapper,std::ref(myValue));
+
+
+
+    // Wait for the timer to complete
+    //
+    // NOTE: The timer could be stopped at
+    //       any point by calling myTimer.stopAndDetach()
+    //       or by calling myTimer.stopAndJoin()
+
+    myTimer.join();
+
+
+
+    // Print out the value after the thread
+    // is done showing that the value was
+    // indeed changed
+
+    std::cout << "after thread is done, value = " << myValue << "\n\n\n";
 	
-	// Output the final count to
-	// prove that the count was
-	// changed
 	
-	std::cout << "Final count = " << count << std::endl;
 	
 	// We're done
 	
@@ -82,3 +116,12 @@ int main(int argc, char *argv[])
 }
 //-------------------------------------------------------------------
 ```
+
+The output from this program follows:
+
+value = 1
+value = 2
+value = 3
+value = 4
+value = 5
+after thread is done, value = 5

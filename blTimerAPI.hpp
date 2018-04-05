@@ -17,14 +17,13 @@
 //-------------------------------------------------------------------
 
 
-//-------------------------------------------------------------------
-// Includes and libs needed for this file and sub-files
-//-------------------------------------------------------------------
-#include <thread>
-//-------------------------------------------------------------------
-
 
 //-------------------------------------------------------------------
+
+// A functor that wraps an object's member function so
+// that it can easily be invoked by our timer
+
+#include "blMemberFunctionWrapper.hpp"
 
 // A timer that runs on a parallel thread and invokes
 // multiple user provided callbacks every user's specified

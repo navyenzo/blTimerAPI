@@ -21,6 +21,7 @@
 // Includes and libs needed for this file and sub-files
 //-------------------------------------------------------------------
 #include <thread>
+#include "blMemberFunctionWrapper.hpp"
 //-------------------------------------------------------------------
 
 

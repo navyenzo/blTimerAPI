@@ -9,9 +9,7 @@
 
 ## How do I use it?
 
-The blTimer class can be used with any type of function such as a function, a functor, a lambda function, with any number of arguments
-
-The blTimerAPI also includes a blMemberFunctionWrapper object used to wrap member functions to use with the timer
+The blTimer class can be used with any type of function such as a function, a functor, a lambda function, member functions, with any number of arguments
 
 Here's an example code where we feed a functor to our timer, and set the timer period to 1 second (that means it fires every second), set its total duration to 5 seconds (it stops firing after 5 seconds) and set its maximum number of firings to -1 (it means it never stops firing until it runs for "duration" seconds)
 
@@ -76,15 +74,9 @@ int main(int argc, char *argv[])
 
 
 
-    // The member function wrapper
-
-    auto functionWrapper = blTimerAPI::blMemberFunctionWrapper(myWorker,&WorkerClass::workFunction);
-
-
-
     // Start the timer
 
-    myTimer.start(functionWrapper,std::ref(myValue));
+    myTimer.start(&WorkerClass::workFunction,std::ref(myWorker),std::ref(myValue));
 
 
 

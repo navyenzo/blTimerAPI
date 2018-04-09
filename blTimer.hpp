@@ -21,7 +21,8 @@
 // Includes and libs needed for this file and sub-files
 //-------------------------------------------------------------------
 #include <thread>
-#include "blMemberFunctionWrapper.hpp"
+#include <functional>
+#include <atomic>
 //-------------------------------------------------------------------
 
 
@@ -124,11 +125,6 @@ public:  // Public functions
 
     // Functions used ot start the
     // parallel thread
-
-    template<typename blFunctor,
-             typename...blFunctorArguments>
-
-    bool                                                        start(blFunctor functor);
 
     template<typename blFunctor,
              typename...blFunctorArguments>
@@ -377,42 +373,6 @@ inline void blTimer::pause()
 template<typename blFunctor,
          typename...blFunctorArguments>
 
-inline bool blTimer::start(blFunctor functor)
-{
-    // We want this timer to only spin off
-    // one thread, so we first check if the
-    // timer had already started
-
-    if(m_stop == true && m_thread.joinable() == false)
-    {
-        // This means the timer had been
-        // stopped or not started yet, and
-        // that the previous timer thread
-        // has been detached or joined
-
-        m_stop = false;
-        m_pause = false;
-
-        m_thread = std::thread(&blTimer::run<blFunctor,blFunctorArguments...>,std::ref(*this),std::ref(functor));
-
-        return true;
-    }
-    else
-    {
-        // This means the thread had already
-        // started and not finished yet
-
-        return false;
-    }
-}
-//-------------------------------------------------------------------
-
-
-
-//-------------------------------------------------------------------
-template<typename blFunctor,
-         typename...blFunctorArguments>
-
 inline bool blTimer::start(blFunctor functor,blFunctorArguments... arguments)
 {
     // We want this timer to only spin off
@@ -429,7 +389,7 @@ inline bool blTimer::start(blFunctor functor,blFunctorArguments... arguments)
         m_stop = false;
         m_pause = false;
 
-        m_thread = std::thread(&blTimer::run<blFunctor,blFunctorArguments...>,std::ref(*this),std::ref(functor),std::ref(arguments...));
+        m_thread = std::thread(&blTimer::run<blFunctor,blFunctorArguments...>,std::ref(*this),functor,arguments...);
 
         return true;
     }
@@ -492,7 +452,7 @@ inline void blTimer::run(blFunctor functor,blFunctorArguments... arguments)
 
         if(m_pause == false && (currentTime - lastTimeOfExecution) > m_period)
         {
-            functor(arguments...);
+            std::invoke(functor,arguments...);
 
 
 
